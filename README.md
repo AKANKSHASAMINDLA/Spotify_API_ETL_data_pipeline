@@ -15,12 +15,13 @@ The following architecture shows how the components of this ETL pipeline interac
 
 ## 🚀 Step-by-Step Pipeline Execution
 
-### ✅ Step 1: Extract Spotify API Data and Store in S3
+### Step 1: Extract Spotify API Data and Store in S3
 
 - A Lambda function is scheduled using **CloudWatch Events** to run at fixed intervals.
 - It fetches **songs, albums, and artist metadata** using the Spotify Web API (via Spotipy).
 - Data is pushed into an **S3 bucket** under structured folders:
 
+```bash
 /spotify-etl-bucket/
 ├── raw/
 │ ├── to-be-processed/
@@ -29,13 +30,14 @@ The following architecture shows how the components of this ETL pipeline interac
 ├── songs/
 ├── albums/
 └── artists/
+```
 
 📸 _Screenshot_: Lambda function and CloudWatch trigger  
 ![Extract Lambda with CloudWatch](screenshots/extract_lambda_with_cloudwatch_trigger.png)
 
 ---
 
-### ✅ Step 2: Transform Data via AWS Lambda
+### Step 2: Transform Data via AWS Lambda
 
 - The same Lambda function listens for new files in `raw/to-be-processed/`.
 - It parses complex JSON payloads from Spotify API.
@@ -50,17 +52,14 @@ The following architecture shows how the components of this ETL pipeline interac
 
 ---
 
-### ✅ Step 3: Move Processed Files to Archive
+### Step 3: Move Processed Files to Archive
 
 - After transformation, raw files are moved from `to-be-processed/` to `raw-processed/` as a backup/archive.
 - This keeps the pipeline clean and prevents redundant processing.
 
-📸 _Screenshot_: Post-transformation move logic in Lambda  
-![Move Processed Files](screenshots/move_processed_files.png)
-
 ---
 
-### ✅ Step 4: Infer Schema using AWS Glue
+### Step 4: Infer Schema using AWS Glue
 
 - An AWS Glue **Crawler** was configured to scan the `transformed/` S3 folders.
 - It inferred schemas and created three separate tables under a Glue **Database**.
@@ -86,7 +85,7 @@ The following architecture shows how the components of this ETL pipeline interac
 
 ---
 
-### ✅ Step 5: Query Using Amazon Athena
+### Step 5: Query Using Amazon Athena
 
 - Used **Amazon Athena** to run SQL queries on the transformed data.
 - Example queries include retrieving top songs, artists, albums, etc.
